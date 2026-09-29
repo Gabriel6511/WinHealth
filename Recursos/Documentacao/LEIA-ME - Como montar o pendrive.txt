@@ -1,0 +1,322 @@
+========================================================================
+  WINHEALTH - COMO MONTAR O PENDRIVE
+========================================================================
+
+------------------------------------------------------------------------
+ESTRUTURA DAS PASTAS NO PENDRIVE
+------------------------------------------------------------------------
+
+PENDRIVE (E:\ ou qualquer letra)
+│
+├── WinHealth.bat            <- o lancador (o que voce executa)
+├── WinHealth.ps1            <- o programa em si (TEM que ficar do lado do .bat)
+├── WinHealth Janela.bat     <- atalho que abre direto no modo janela
+│
+└── Recursos\
+    ├── Ferramentas\
+    │   └── SCANNER ANTI-MINERADOR v4.bat   <- copie o scanner para ca
+    │
+    ├── Relatorios\            <- criada sozinha; os relatorios ficam aqui
+    │
+    ├── Emergencia\            <- Modo Emergencia (ver secao propria mais abaixo)
+    └── Documentacao\          <- este arquivo, o roteiro de teste, etc.
+
+IMPORTANTE: o "WinHealth.bat" precisa estar na RAIZ do pendrive, e a
+pasta "Recursos\Ferramentas" precisa estar no mesmo lugar (do lado do
+"Recursos"). Se o scanner nao estiver nesse caminho, a opcao [2] do menu
+avisa e nao quebra nada.
+
+
+------------------------------------------------------------------------
+COMO USAR NA MAQUINA DO CLIENTE
+------------------------------------------------------------------------
+
+1. Espete o pendrive
+2. Abra o pendrive no Explorador de Arquivos
+3. Clique com o BOTAO DIREITO em "WinHealth.bat"
+4. Escolha "Executar como administrador"
+5. Escolha a opcao no menu
+
+Por que precisa ser como administrador: sem isso, o Windows bloqueia a
+leitura da saude do disco (SMART), o historico de eventos criticos, o
+reparo do sistema e o backup dos drivers.
+
+Se voce abrir SEM administrador, nada quebra: o menu mostra o modo atual
+e marca cada opcao ("[requer administrador]" ou "[mais completo como
+administrador]"). Basta digitar A no menu para o WinHealth se reabrir
+elevado (o Windows pede a confirmacao). As opcoes que exigem admin e o
+fim do Diagnostico (quando ha itens "[?]") tambem oferecem isso.
+
+  - Conta que ja e administradora: o Windows so pede confirmacao (UAC).
+  - Conta comum (sem admin local): o Windows pede usuario e senha de
+    uma conta administradora. Se voce nao tem, peca a quem administra a
+    maquina; o Kit nao tenta contornar. Usando outra conta, os relatorios
+    ficam na area dessa conta.
+  - Se o pedido for cancelado ou negado, o Kit continua em modo limitado.
+
+Os relatorios sao salvos NO PROPRIO PENDRIVE, na pasta Recursos\Relatorios,
+com o nome da maquina e a data. Assim voce leva o historico de todos os
+atendimentos junto.
+
+
+------------------------------------------------------------------------
+O QUE CADA OPCAO FAZ
+------------------------------------------------------------------------
+
+[1] DIAGNOSTICO COMPLETO
+    So le, nao altera nada. Pode rodar sem medo em qualquer maquina.
+    Verifica: modelo/serial, RAM e slots livres, saude SMART do disco,
+    espaco livre, telas azuis (minidumps), desligamentos inesperados,
+    erros de hardware (WHEA), drivers com erro, temperatura, saude da
+    bateria, Defender e atualizacoes pendentes.
+    Ao final gera tambem um RELATORIO HTML para o cliente (veredito,
+    contagem de problemas, o que fazer em cada item), salvo na pasta
+    Recursos\Relatorios como <MAQUINA>_Diagnostico_<data>.html. Verificacoes que
+    nao puderam ser feitas (ex.: sem administrador) aparecem como
+    "Nao verificado", nunca como "tudo certo".
+
+[2] ESCANEAR VIRUS
+    Abre o Scanner Anti-Minerador v4 (34 etapas) em janela propria.
+    Ele pede permissao de administrador ao abrir e so INFORMA: nao apaga
+    nada sozinho. O relatorio do scanner e salvo na pasta Recursos\Relatorios
+    do WinHealth (<MAQUINA>_Scanner_<data>.txt), e nao solto no Desktop do
+    cliente. Se voce abrir o scanner sozinho (duplo clique no .bat da
+    pasta Recursos\Ferramentas), ele continua salvando no Desktop.
+
+[3] REPARAR O WINDOWS
+    ALTERA o sistema. Cria ponto de restauracao antes.
+    Roda DISM -> SFC -> CHKDSK, nessa ordem (a ordem importa: rodar SFC
+    antes do DISM e o erro mais comum, porque o SFC repara usando uma
+    imagem que pode estar corrompida tambem).
+    Demora de 15 a 40 minutos. Precisa de internet para o DISM.
+    Durante cada etapa aparece um cronometro com a ultima linha do
+    programa (o DISM pode ficar parado em 20%, e normal). O resultado
+    de cada etapa e decidido pelo CODIGO DE SAIDA do programa, entao
+    funciona em Windows de qualquer idioma; o texto so refina a mensagem.
+    Ao final o Kit diz se houve problemas ou nao (antes sempre dizia
+    "concluido"). O relatorio guarda a saida completa de cada comando.
+
+[4] LIMPEZA E OTIMIZACAO
+    Apaga SO temporarios e cache. Nao toca em documentos, fotos ou
+    programas. Antes de apagar, MOSTRA quanto cada item ocupa e pede
+    confirmacao. Limpa temp do usuario e do Windows, cache da internet,
+    cache do Windows Update e cache de DNS, e lista os programas que
+    abrem com o Windows (sem desativar nada).
+    Cuidados embutidos:
+      - A LIXEIRA so e esvaziada se voce responder S a uma pergunta
+        separada (mostra o tamanho; esvaziar nao tem volta).
+      - Arquivos em uso sao mantidos e contados, nao dao erro.
+      - Nunca apaga raiz de disco, perfil de usuario ou pasta do
+        Windows, e nao segue atalhos de pasta (junctions).
+      - Nao apaga os arquivos temporarios do proprio WinHealth.
+      - O cache do Windows Update e pulado se o Windows estiver
+        instalando atualizacoes, e os servicos voltam ao estado anterior.
+      - Itens que exigem administrador aparecem como "pulado" quando
+        voce esta sem admin.
+
+[5] RELATORIO COMPLETO PARA O CLIENTE
+    Gera uma PASTA (Relatorios\<MAQUINA>_RelatorioCompleto_<data>) com
+    arquivos que abrem no navegador, mais um index.html que junta tudo:
+      - diagnostico.html  (o mesmo da opcao 1)
+      - bateria.html      (desgaste, ciclos, historico de uso)
+      - energia.html      (analise de 60 s; exige administrador)
+      - wifi.html         (historico de conexoes e falhas; admin)
+      - drivers.html      (com data e versao; so sinaliza como antigos os
+                           drivers de terceiros, nao os nativos do Windows)
+      - sistema.txt       (systeminfo, em UTF-8)
+    O que nao pode ser gerado (ex.: sem administrador, ou sem placa Wi-Fi)
+    aparece no indice como "Nao gerado", com o motivo e o que fazer.
+    Os arquivos NAO contem senhas, mas trazem dados da maquina (modelo,
+    serie, nomes de redes Wi-Fi e programas): compartilhe so com quem
+    precisa e apague quando nao for mais necessario.
+
+[6] PREPARAR FORMATACAO
+    NAO formata. Faz o trabalho que importa ANTES de formatar:
+    salva a chave do Windows, faz backup de TODOS os drivers da maquina,
+    exporta a lista de programas instalados, mapeia o tamanho dos dados
+    do usuario e salva as redes Wi-Fi com senha.
+
+    Por que nao formata direto:
+      1. Tecnicamente impossivel - o Windows nao formata o disco em que
+         ele mesmo esta rodando. Formatar exige boot pelo pendrive de
+         instalacao do Windows.
+      2. Seguranca - um botao "formatar agora" em kit de tecnico e a
+         forma mais facil de apagar a maquina do cliente errado.
+
+    DADOS SENSIVEIS (chave do Windows e senhas de Wi-Fi do cliente):
+      - So sao guardados se voce optar (padrao: NAO guardar).
+      - Se optar, ficam num arquivo CRIPTOGRAFADO com uma senha que voce
+        define (AES-256 + HMAC): dados_sensiveis.whenc. Nunca aparecem na
+        tela nem no relatorio de texto. Se perder a senha, nao ha como
+        recuperar.
+      - Para ler: opcao [8] do menu (pede o caminho e a senha; nao grava
+        nada em disco).
+      - A pasta de backup contem dados do cliente: se o pendrive for
+        perdido ou o relatorio compartilhado, ha exposicao. APAGUE a pasta
+        depois de reconfigurar a maquina. Ela fica na pasta Recursos\Relatorios
+        (que o .gitignore impede de ir para o GitHub).
+    O mapa dos dados cobre so o usuario atual e as pastas padrao; o Kit
+    avisa quando ha outros perfis e se a pasta esta no OneDrive.
+
+    O backup dos drivers e o item mais valioso: depois de formatar, em
+    vez de cacar driver de rede/audio/video na internet (as vezes sem
+    ter internet porque justamente o driver de rede esta faltando),
+    voce aponta o Gerenciador de Dispositivos para a pasta Drivers.
+
+[7] DIAGNOSTICO DE USB BLOQUEADO
+    So le, nao altera nada. Mostra os dispositivos USB em uso, o Hardware
+    ID (VID/PID) do pendrive conectado, e checa se o proprio Windows esta
+    bloqueando armazenamento USB (driver USBSTOR, GPO de armazenamento
+    removivel, restricao de instalacao de dispositivos, protecao contra
+    gravacao) e se ha servico tipico de DLP/EDR. Gera um texto pronto pra
+    colar no chamado pedindo a liberacao do pendrive de trabalho.
+
+    O Kit NAO contorna o bloqueio (nao religa USBSTOR nem mexe em
+    politica). A saida correta e o chamado de liberacao pelo Hardware ID
+    ou o Modo Sem Pendrive (proxima secao).
+
+
+------------------------------------------------------------------------
+MODO SEM PENDRIVE (USB BLOQUEADO NA MAQUINA DO CLIENTE)
+------------------------------------------------------------------------
+
+Quando a maquina bloqueia armazenamento USB (mouse/teclado funcionam, o
+pendrive nao aparece), da pra rodar o Kit sem pendrive:
+
+  A) COMPARTILHAMENTO DE REDE
+     Coloque WinHealth.bat + WinHealth.ps1 (+ pasta Recursos\Ferramentas) em
+     uma pasta de rede que voce tenha acesso, ex.:
+       \\servidor\ferramentas\WinHealth
+     Na maquina do cliente: Win+R, digite o caminho, botao direito em
+     "WinHealth.bat" > Executar como administrador.
+     O launcher copia o script pra pasta TEMP local antes de rodar
+     (a politica de execucao do PowerShell bloqueia scripts rodando
+     direto de caminho de rede). O scanner tambem e copiado pra local.
+
+  B) LINK INTERNO (SharePoint, ServiceNow, etc.)
+     Baixe WinHealth.ps1 pra pasta local e rode:
+       powershell -ExecutionPolicy RemoteSigned -File WinHealth.ps1
+     (Se o arquivo veio da internet, antes: Unblock-File WinHealth.ps1)
+
+RELATORIOS NO MODO REDE: nunca sao gravados no compartilhamento (contem
+chave do Windows e senhas de Wi-Fi). Ficam na maquina do cliente, em
+Desktop\Relatorios-WinHealth. Leve o que precisar por um meio
+autorizado (e-mail/chamado) e APAGUE a pasta antes de sair.
+
+LIMITES: se o AppLocker/WDAC bloquear .bat/.ps1 nao assinados, o script
+nem roda, com ou sem pendrive. Nesse caso e preciso excecao de politica
+ou assinatura digital. O Modo Emergencia (boot pelo pendrive) continua
+sendo a saida pra maquina que nao liga, porque a politica de USB e do
+Windows, nao do firmware.
+
+
+------------------------------------------------------------------------
+MODO EMERGENCIA (PENDRIVE BOTAVEL) - JA PRONTO
+------------------------------------------------------------------------
+
+O Kit acima so funciona em maquina que LIGA. Para maquina travada em
+tela azul que nem inicia (o caso do seu amigo), o caminho e um pendrive
+BOTAVEL. Os arquivos ja estao prontos:
+
+  EMERGENCIA.ps1              <- o motor: diagnostica e repara sozinho
+  EMERGENCIA.cmd               <- lancador de 1 clique (Caminho A)
+  startnet_emergencia.cmd      <- script de boot automatico (Caminho B)
+  montar_winpe_emergencia.bat  <- monta a ISO com boot automatico (Caminho B)
+
+O QUE O EMERGENCIA.ps1 FAZ SOZINHO, SEM PERGUNTAR NADA:
+  - Acha a instalacao do Windows no disco e o proprio pendrive
+  - Copia os minidumps (telas azuis) e os logs de evento para o pendrive
+  - Confere a saude do disco (so leitura)
+  - Repara o boot (bootrec /fixmbr, /fixboot, bcdboot) - seguro, nunca
+    apaga dados, so reescreve os arquivos de inicializacao
+  - Roda o SFC offline (verifica/repara arquivos do sistema)
+  - Roda o CHKDSK em modo so-leitura (/scan) - se achar problema grave,
+    avisa no relatorio mas NAO manda /f nem /r sozinho, porque essas
+    opcoes escrevem no disco e podem piorar as coisas sem supervisao
+  - Salva um relatorio completo no pendrive e reinicia sozinho depois
+    de 60s (da pra cancelar apertando qualquer tecla)
+
+Ferramentas gratuitas usadas como base (baixe SEMPRE dos sites oficiais):
+
+  VENTOY (ventoy.net)
+    Deixa varias ISOs no mesmo pendrive. Instala uma vez, depois e so
+    arrastar os .iso para dentro, como pendrive comum. No boot mostra
+    um menu de escolha.
+
+  HIREN'S BOOTCD PE (hirensbootcd.org)
+    Mini-Windows (WinPE) com ferramentas de recuperacao, teste de
+    memoria, recuperacao de arquivos, particionamento, antivirus.
+
+  WINDOWS 11 ISO (site oficial da Microsoft)
+    Para instalar/formatar de verdade quando for o caso.
+
+ATENCAO: existem versoes "modificadas" desses kits circulando com
+malware embutido - a ironia de infectar a maquina que voce foi
+consertar. Baixe so dos sites oficiais acima.
+
+
+CAMINHO A - SIMPLES, 1 CLIQUE (recomendado para comecar)
+------------------------------------------------------------------------
+Use o Hiren's BootCD PE sem nenhuma modificacao.
+
+  1. Instale o Ventoy no pendrive (ventoy.net > Ventoy2Disk)
+  2. Copie a ISO do Hiren's BootCD PE para dentro do pendrive
+  3. Copie EMERGENCIA.ps1 e EMERGENCIA.cmd (estao em Recursos\Emergencia\
+     no projeto) para a RAIZ do pendrive (soltos, fora de qualquer ISO)
+  4. Na maquina com problema: F2/F12/DEL no boot > escolher o pendrive
+     > escolher "Hiren's BootCD PE" no menu do Ventoy
+  5. O Hiren's abre uma area de trabalho normal (mouse e teclado
+     funcionam aqui, mesmo que a tela azul do Windows nao respondesse -
+     o travamento era do Windows, nao da maquina). Abra o Explorador de
+     Arquivos, va ate o pendrive, de duplo-clique em "EMERGENCIA.cmd"
+
+Isso NAO e zero clique (precisa 1 duplo-clique dentro do Hiren's), mas
+resolve o problema real: uma vez no Hiren's, a maquina volta a
+responder normalmente. So o Windows travado nao respondia a cliques.
+
+
+CAMINHO B - AVANCADO, ZERO CLIQUE (pra deixar 100% "plug e esquece")
+------------------------------------------------------------------------
+Cria uma ISO propria de WinPE que roda o EMERGENCIA.ps1 sozinha assim
+que termina de carregar - sem precisar clicar em nada, nem no Hiren's.
+
+Precisa (uma vez so, numa maquina Windows funcionando - pode ser a sua):
+  1. Instalar o Windows ADK + o complemento "WinPE add-on" (gratis,
+     site oficial da Microsoft - o montar_winpe_emergencia.bat mostra
+     o link quando roda)
+  2. EMERGENCIA.ps1, startnet_emergencia.cmd e montar_winpe_emergencia.bat
+     ja estao juntos em Recursos\Emergencia\ no projeto - nao precisa
+     mover nada, so entrar nessa pasta
+  3. Rodar montar_winpe_emergencia.bat como ADMINISTRADOR
+  4. Ele gera um arquivo "WinPE_Emergencia.iso" dentro de Recursos\Emergencia\
+
+Depois, no pendrive com Ventoy:
+  1. Copie o WinPE_Emergencia.iso para dentro do pendrive (junto com a
+     ISO do Hiren's - podem conviver, o Ventoy mostra os dois no menu)
+  2. Copie EMERGENCIA.ps1 tambem pra RAIZ do pendrive (fora da ISO -
+     o startnet_emergencia.cmd procura ele la na hora do boot)
+  3. No boot, escolha "WinPE_Emergencia" no menu do Ventoy - dai em
+     diante e 100% automatico ate reiniciar sozinho no final
+
+Quando usar qual: Caminho A pra usar hoje sem preparo extra. Caminho B
+quando quiser deixar o kit definitivo pronto pra qualquer emergencia,
+inclusive pra deixar com um cliente ou levar pra atender remotamente
+por telefone ("so espeta e espera").
+
+
+------------------------------------------------------------------------
+AVISO IMPORTANTE SOBRE "CONSERTAR SOZINHO"
+------------------------------------------------------------------------
+
+Tela azul tem dezenas de causas possiveis: memoria RAM defeituosa, SSD
+morrendo, driver ruim, arquivo de sistema corrompido, superaquecimento,
+fonte fraca. Nenhum script consegue adivinhar qual e.
+
+Por isso o Kit foi feito para DIAGNOSTICAR automaticamente e deixar
+VOCE decidir o reparo. Um script que "chuta" o conserto pode piorar o
+problema ou destruir dados do cliente.
+
+O valor real esta em: em 5 minutos voce tem um retrato completo da
+maquina que levaria 40 minutos para levantar na mao.
+
+========================================================================

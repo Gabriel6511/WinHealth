@@ -1,0 +1,25 @@
+# Dados reais de maquinas atendidas (senhas de Wi-Fi, chaves, drivers) - nunca publicar
+Relatorios/
+Relatorios-Emergencia/
+*_PreFormatacao_*/
+*_RelatorioCompleto_*/
+*.dmp
+*.evtx
+
+# ISOs e binarios grandes
+*.iso
+*.wim
+
+# Instrucoes internas do Claude Code - so pra desenvolvimento local, nunca vai pro GitHub
+# (regra padrao do Gabriel pra todo projeto que possa ficar publico: menciona nome de
+# cliente/contexto interno e nao tem valor nenhum pra quem so quer ler o codigo).
+CLAUDE.md
+
+# Sistema / editor
+Thumbs.db
+desktop.ini
+.claude/
+graphify-out/
+
+# Credenciais da VM de teste (descartavel, so local)
+.vm-teste-credenciais.txt
