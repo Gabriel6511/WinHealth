@@ -9,6 +9,10 @@ instalação — com uma interface gráfica própria em PowerShell/WPF.
 
 ---
 
+## Demonstração
+
+[▶ Assistir ao vídeo de demonstração](media/demo.mp4)
+
 ## O problema
 
 Ferramentas de suporte técnico geralmente assumem acesso total à máquina:
